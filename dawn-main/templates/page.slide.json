@@ -1,0 +1,9 @@
+{
+  "sections": {
+    "slide": {
+      "type": "search-slide",
+      "settings": {}
+    }
+  },
+  "order": ["slide"]
+}

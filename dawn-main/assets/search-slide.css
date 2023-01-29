@@ -1,0 +1,97 @@
+.search-slide {
+  position: relative;
+}
+.search-slide .search__container {
+  text-align: center;
+  margin: 3rem;
+}
+.search-slide .search__container input {
+  outline: none;
+  width: 250px;
+}
+.search-slide .swiper__container {
+  max-width: 300px;
+  margin: auto;
+}
+.search-slide .image__container {
+  position: relative;
+}
+.search-slide .image__container img {
+  height: 250px;
+  width: 100%;
+  object-fit: cover !important;
+}
+.search-slide .add-cart {
+  text-align: center;
+  position: absolute;
+  bottom: 1rem;
+  left: 1rem;
+  right: 1rem;
+  padding: 0.7rem 0;
+  border: none;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+  text-transform: uppercase;
+  font-weight: 600;
+  border-radius: 50px;
+  background-color: #937aad;
+  color: #fff;
+  overflow: hidden;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(5px);
+  transition: opacity 0.25s ease, transform 0.25s ease-out, background 0.4s ease;
+}
+.search-slide .swiper-slide:hover .add-cart {
+  opacity: 1;
+  transform: translateY(-10px);
+  transition: opacity 0.25s ease, transform 0.25s ease-out;
+}
+.search-slide .badge {
+  padding: 0;
+  position: absolute;
+  width: 45px;
+  height: 45px;
+  top: 1rem;
+  right: 1rem;
+  border-radius: 100%;
+  background-color: #b29669;
+  color: white;
+  font-size: 13px;
+  font-weight: thin;
+  font-family: serif;
+  display: grid;
+  align-content: center;
+}
+.search-slide .badge span {
+  line-height: 1.2rem;
+}
+.search-slide .swiper-slide:nth-child(even) .badge {
+  display: none;
+}
+.search-slide .product__content {
+  margin: 2rem 0;
+}
+.search-slide .product__title {
+  color: gray;
+  font-weight: bold;
+  font-size: 2rem;
+  text-transform: uppercase;
+  margin: 0;
+}
+.search-slide .product__price {
+  color: gray;
+  font-weight: bold;
+  margin: 0;
+}
+.search-slide .swiper {
+  max-width: 1300px;
+}
+.search-slide .swiper-button-prev,
+.search-slide .swiper-button-next {
+  display: flex !important;
+  color: black;
+}
+.search-slide .swiper-pagination-bullet-active {
+  background-color: black;
+}

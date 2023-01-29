@@ -1,0 +1,174 @@
+{{ 'swiper-bundle.min.css' | asset_url | stylesheet_tag }}
+{{ 'swiper-bundle.min.js' | asset_url | script_tag }}
+
+{{ 'search-slide.css' | asset_url | stylesheet_tag }}
+
+<!-- Slider main container -->
+<div class="{{ section.id }} search-slide">
+  <div class="search__container">
+    <span>Search:</span>
+    <input
+      class=""
+      type="text"
+      placeholder="Type product name"
+    >
+  </div>
+
+  <div class="swiper-outer">
+    <div class="swiper">
+      <!-- Additional required wrapper -->
+      <div class="swiper-wrapper">
+        <!-- Slides -->
+        {% for product in collections.all.products %}
+          <div class="swiper-slide">
+            <div class="swiper__container">
+              <div class="image__container">
+                {{ product | image_url: width: 300 | image_tag }}
+                <div class="add-cart">ADD TO CART</div>
+
+                <div class="badge"><span>Best</span><span>Seller</span></div>
+              </div>
+              <div class="product__content">
+                <p class="product__title">{{ product.title }}</p>
+                <p class="product__price">{{ product.price | money_without_currency }} $</p>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+      <!-- If we need pagination -->
+      <div class="swiper-pagination"></div>
+
+      <!-- If we need navigation buttons -->
+      <div class="swiper-button-prev"></div>
+      <div class="swiper-button-next"></div>
+
+      <!-- If we need scrollbar -->
+      <div class="swiper-scrollbar"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    let swiper;
+    const createSwiper = () => {
+      swiper = new Swiper('.{{ section.id }} .swiper', {
+        slidesPerGroupAuto: true,
+        breakpoints: {
+          0: {
+            slidesPerView: 3,
+            //spaceBetween: 20,
+          },
+        },
+        pagination: {
+          el: '.{{ section.id }} .swiper-pagination',
+          dynamicBullets: true,
+          clickable: true,
+        },
+        // autoplay: {
+        //  delay: 5000,
+        // },
+        navigation: {
+          nextEl: '.swiper-button-next',
+          prevEl: '.swiper-button-prev',
+        },
+      });
+    };
+    createSwiper();
+
+    if (Shopify.designMode) {
+      // This will only render in the theme editor
+      document.addEventListener('shopify:section:load', function (event) {
+        createSwiper();
+      });
+    }
+
+    const sectionId = '{{ section.id }}';
+    const SWIPER_OUTER = document.querySelector(`.${sectionId} .swiper-outer`);
+    const SEARCH_EL = document.querySelector('.search__container input');
+
+    const initialSlider = SWIPER_OUTER.innerHTML;
+
+    const debouncedSearchProduct = debounce(searchProduct, 1000);
+
+    SEARCH_EL.addEventListener('input', (e) => {
+      const inputValue = e.target.value.trim();
+      if (!inputValue) {
+        swiper.destroy(true, true);
+        SWIPER_OUTER.innerHTML = initialSlider;
+        createSwiper();
+        return;
+      }
+      debouncedSearchProduct(inputValue);
+    });
+
+    async function searchProduct(query) {
+      console.log('query for:', query);
+      const response = await fetch(`/search/suggest.json?q=${query}&resources[type]=product`);
+      const {
+        resources: {
+          results: { products },
+        },
+      } = await response.json();
+      console.log(products);
+
+      // don't update ui if input value is changed since start of fetch.
+      if (SEARCH_EL.value.trim() !== query) {
+        return console.log('Query is changed since start of fetch. Doing nothing...');
+      }
+
+      if (!products || products.length === 0) {
+        swiper.destroy(true, true);
+        SWIPER_OUTER.innerHTML = `<div style="text-align:center; padding: 20px; font-size:20px; color:red;">There is no product for this query.</div>`;
+        return;
+      }
+
+      // recreate html of swiper
+      const slideItems = products.map((product) => {
+        const slideItem = `<div class="swiper-slide">
+          <div class="swiper__container">
+            <div class="image__container">
+              <img src="${product.image}" alt="bold star" width="300" height="200">
+              <div class="add-cart">ADD TO CART</div>
+
+              <div class="badge"><span>Best</span><span>Seller</span></div>
+            </div>
+            <div class="product__content">
+              <p class="product__title">${product.title}</p>
+              <p class="product__price">${product.price} $</p>
+            </div>
+          </div>
+        </div>`;
+        return slideItem;
+      });
+
+      const newSwiperContent = `<div class="swiper">
+        <div class="swiper-wrapper">
+          ${slideItems}
+        </div>
+        <!-- If we need pagination -->
+        <div class="swiper-pagination"></div>
+    
+        <!-- If we need navigation buttons -->
+        <div class="swiper-button-prev"></div>
+        <div class="swiper-button-next"></div>
+    
+        <!-- If we need scrollbar -->
+        <div class="swiper-scrollbar"></div>
+      </div>`;
+
+      SWIPER_OUTER.innerHTML = newSwiperContent;
+      swiper.destroy(true, true);
+      createSwiper();
+    }
+
+    function debounce(fn, delay) {
+      let timeoutId;
+      return function (...args) {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => fn.apply(this, args), delay);
+      };
+    }
+  })();
+</script>
